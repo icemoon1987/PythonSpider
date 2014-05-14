@@ -1,6 +1,6 @@
 #-*- coding: UTF-8 -*-
-from bs4 import BeautifulSoup
 
+from bs4 import BeautifulSoup
 import httplib
 import urllib2
 import re
@@ -8,7 +8,6 @@ import math
 import os
 import platform
 import time
-
 import hashlib
 
 class eSpider(object):
@@ -31,23 +30,24 @@ class eSpider(object):
 
 		return
 
+
 	def openUrl(self, url, repeat = 5):
 		print ""
 		print "Opening Url: ", url
 
-		page = False
-
 		for i in range(repeat):
-
-			if page != False:
-				break;
 
 			try:
 				page = urllib2.urlopen(url).read()
+
 			except (IOError, httplib.HTTPException):
 				print "Failed ", i+1 , " times!"
-				page =  False
+				page =  None
 				time.sleep(0.5)
+
+			finally:
+				if page != None:
+					break
 
 		return page
 
@@ -70,18 +70,18 @@ class eSpider(object):
 		pages = soup.find_all("td", onclick=re.compile("sp"));
 
 		if pages == None or pages == []:
-			print("eSpider::processMainPage(): No page information found!")
+			print("eSpider::processMainPage(): No page number information found!")
 			return None
 
 		pageNum = pages[-2].string
 
-		print "eSpider::processMainPage(): pageNum = ", pageNum
+		#print "eSpider::processMainPage(): pageNum = ", pageNum
 
 		# Get topic number per page
 		topicOnPage = soup.find("table", class_="itg").find_all("tr", class_=True)
 		self.topicNumPerPage = len(topicOnPage)
 
-		print "eSpider::processMainPage(): self.topicNumPerPage = ", self.topicNumPerPage
+		#print "eSpider::processMainPage(): self.topicNumPerPage = ", self.topicNumPerPage
 
 		# Get topic number
 		topicNum = re.search( r'of (.*$)', unicode(soup.find("p", class_="ip").string)).group(1)
@@ -106,7 +106,7 @@ class eSpider(object):
 
 	def openSearchPage(self, pageIndex):
 
-		url = "http://g.e-hentai.org/?page=" + str(pageIndex) + "&" + self.searchOpt + "&f_search=" + self.searchStr + "&f_apply=Apply+Filter"
+		url = self.mainPage + "/?page=" + str(pageIndex) + "&" + self.searchOpt + "&f_search=" + self.searchStr + "&f_apply=Apply+Filter"
 
 		if pageIndex == self.pageNumMax - 1 :
 			self.topicNumOnThisPage = self.topicNumMax % self.topicNumPerPage
@@ -127,7 +127,7 @@ class eSpider(object):
 
 		topicName = self.GetTopicName(topic)
 
-		if(os.path.exists("./" + topicName)):
+		if(os.path.exists("./output/" + topicName)):
 			print "Already have " + topicName
 			return True
 
@@ -168,7 +168,7 @@ class eSpider(object):
 		for i in range(pageNum):
 		
 			page = self.openImagePage(topic, i)	
-			if page == False:
+			if page == None:
 				print "eSpider::processMainPage(): failed in open page ", i
 				continue
 
@@ -198,7 +198,7 @@ class eSpider(object):
 		url = unicode(image.find("a")['href'])
 		page = self.openUrl(url)
 
-		if page == False :
+		if page == None :
 			print "eSpider::GetImageLinks(): error in open ", url
 			return False
 
@@ -209,13 +209,17 @@ class eSpider(object):
 		return unicode(soup.find("img", id="img")['src'])
 
 
-	def downLoadImage(self, image, path, using_phantomjs):
+	def downLoadImage(self, image, path, using_phantomjs, proxyServer = "", proxyPort = ""):
 		
 		url = unicode(image.find("a")['href'])
 		
 		if(using_phantomjs == True):
 
-			os.system("phantomjs downLoadImage.js " + url + " " + path)
+			if( proxyServer != ""):
+				os.system("phantomjs --proxy="+proxyServer+":"+proxyPort+ " downLoadImage.js " + url + " " + path)
+			else:
+				os.system("phantomjs downLoadImage.js " + url + " " + path)
+
 
 		else:
 			imageLink = getImageLink(image);
