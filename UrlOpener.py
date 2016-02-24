@@ -19,6 +19,8 @@ class UrlOpener(object):
 
         while try_num < self.retry_times:
             try:
+                if self.debug:
+                    print "UrlOpener: open url, url=%s" % (url)
                 data = urllib.urlopen(url).read()
                 return data
             except Exception, ex:
