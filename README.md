@@ -1,4 +1,4 @@
 PythonSpider
 ============
 
-Python Spider practice。
+Python Spider practice.
