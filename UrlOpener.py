@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 #coding=utf-8
 
-import urllib
+import urllib2
 from datetime import datetime
 import  time 
 
@@ -21,11 +21,11 @@ class UrlOpener(object):
             try:
                 if self.debug:
                     print "UrlOpener: open url, url=%s" % (url)
-                data = urllib.urlopen(url).read()
+                data = urllib2.urlopen(url, timeout=10).read()
                 return data
             except Exception, ex:
                 if self.debug:
-                    print "UrlOpener: open url error, retry_time=%d url=%s" % (try_num, url)
+                    print "UrlOpener: open url error, error=%s retry_time=%d url=%s" % (str(ex), try_num, url)
                 try_num = try_num + 1
 
         if self.debug:
@@ -33,5 +33,11 @@ class UrlOpener(object):
             
         return None
 
+if __name__ == '__main__':
 
+    url_opener = UrlOpener(debug=True)
 
+    data = url_opener.open_url("http://www.baidu.com")
+    print data
+
+    data = url_opener.open_url("http://www.baidu.com333")
