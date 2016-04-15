@@ -10,9 +10,9 @@ import random
 from lxml import etree
 from UrlOpener import UrlOpener
 
-main_page = "http://www.galgamer.net/bbs/"
-target_words = [u"足控", u"足交", u"丝袜"]
-target_channels = [u"黑丸のＭＵＧＥＮ同人格斗园", u"动漫美少女贴图", u"日本动漫下载区", u"蚁后资源区", u"蚁后同人动漫资源区", u"GalGameのBT资源区"]
+main_page = ""
+target_words = []
+target_channels = []
 
 def get_channels(data):
 
